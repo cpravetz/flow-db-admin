@@ -1,5 +1,3 @@
-`import Tabular from 'meteor/aldeed:tabular'`
-
 @AdminTables = {}
 
 adminTablesDom = '<"box"<"box-header"<"box-toolbar"<"pull-left"<lf>><"pull-right"p>>><"box-body"t>>'
@@ -12,6 +10,7 @@ adminEditButton = {
 	width: '40px'
 	orderable: false
 }
+
 adminDelButton = {
 	data: '_id'
 	title: 'Delete'
@@ -45,14 +44,14 @@ AdminTables.Users = new Tabular.Table
 	name: 'Users'
 	collection: Meteor.users
 	columns: _.union [
-		{
-			data: '_id'
-			title: 'Admin'
-			# TODO: use `tmpl`
-			createdCell: (node, cellData, rowData) ->
-				$(node).html(Blaze.toHTMLWithData Template.adminUsersIsAdmin, {_id: cellData}, node)
-			width: '40px'
-		}
+		# {
+		# 	data: '_id'
+		# 	title: 'Admin'
+		# 	createdCell: (node, cellData, rowData) ->
+		# 		$(node).html(Blaze.toHTMLWithData Template.adminUsersIsAdmin, {_id: cellData}, node)
+		# 	width: '40px'
+		# }
+		{ data: 'createdAt', title: 'Created' }
 		{
 			data: 'emails'
 			title: 'Email'
@@ -61,15 +60,14 @@ AdminTables.Users = new Tabular.Table
 			searchable: true
 		}
 		{
-			data: 'emails'
-			title: 'Mail'
-			# TODO: use `tmpl`
-			createdCell: (node, cellData, rowData) ->
-				$(node).html(Blaze.toHTMLWithData Template.adminUsersMailBtn, {emails: cellData}, node)
-			width: '40px'
+			data: '_id'
+			title: 'ID'
+			render: (value) ->
+				' <a href="/admin/users/manage?user=' + value + '" title="open in user management" alt="manage user">manage</a> ' + value
 		}
-		{ data: 'createdAt', title: 'Joined' }
-	], adminEditDelButtons
+	]
+	# , adminEditDelButtons
+	order: [[0,"desc"]]
 	dom: adminTablesDom
 
 adminTablePubName = (collection) ->
@@ -79,7 +77,9 @@ adminCreateTables = (collections) ->
 	_.each AdminConfig?.collections, (collection, name) ->
 		_.defaults collection, {
 			showEditColumn: true
-			showDelColumn: true
+			showDelColumn: true,
+			order: [[0,"desc"]],
+			stateSave: false
 		}
 
 		columns = _.map collection.tableColumns, (column) ->
@@ -91,6 +91,8 @@ adminCreateTables = (collections) ->
 			data: column.name
 			title: column.label
 			createdCell: createdCell
+			orderable: true
+			visible: column.visible
 
 		if columns.length == 0
 			columns = defaultColumns()
@@ -103,12 +105,16 @@ adminCreateTables = (collections) ->
 		AdminTables[name] = new Tabular.Table
 			name: name
 			collection: adminCollectionObject(name)
-			pub: collection.children and adminTablePubName(name)
+			pub: collection.pub || (collection.children and adminTablePubName(name))
 			sub: collection.sub
 			columns: columns
 			extraFields: collection.extraFields
 			dom: adminTablesDom
-
+			stateSave: collection.stateSave
+			ordering: true
+			order: collection.order
+			changeSelector: collection.changeSelector
+			widgetCountQuery: collection.widgetCountQuery
 
 adminPublishTables = (collections) ->
 	_.each collections, (collection, name) ->
@@ -124,13 +130,16 @@ adminPublishTables = (collections) ->
 			, {}
 			_.extend fields, extraFields
 
-			@unblock()
-
 			find: ->
-				@unblock()
 				adminCollectionObject(name).find {_id: {$in: ids}}, {fields: fields}
-			children: collection.children
+			# children: collection.children
 
 Meteor.startup ->
 	adminCreateTables AdminConfig?.collections
 	adminPublishTables AdminConfig?.collections if Meteor.isServer
+	AdminDashboard.users = AdminConfig.users || {
+    hideFromTree: false
+    hideWidget: true
+    newTemplate: 'AdminDashboardUsersNew'
+    editTemplate: 'AdminDashboardUsersEdit'
+	}

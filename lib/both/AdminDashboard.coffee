@@ -1,6 +1,5 @@
-SimpleSchema = require('simpl-schema').default;
-
 AdminDashboard =
+	users: {}
 	schemas: {}
 	sidebarItems: []
 	collectionItems: []
@@ -18,11 +17,13 @@ AdminDashboard =
 			  Router.go AdminConfig.nonAdminRedirectRoute
 		if typeof @.next == 'function'
 			@next()
-	adminRoutes: ['adminDashboard','adminDashboardUsersNew','adminDashboardUsersEdit','adminDashboardView','adminDashboardNew','adminDashboardEdit']
+
+	adminRoutes: ['adminDashboard','adminDashboardView','adminDashboardNew','adminDashboardEdit']
+
 	collectionLabel: (collection)->
 		if collection == 'Users'
 			'Users'
-		else if collection? and typeof AdminConfig.collections[collection].label == 'string'
+		else if collection? and AdminConfig.collections[collection] and typeof AdminConfig.collections[collection].label == 'string'
 			AdminConfig.collections[collection].label
 		else Session.get 'admin_collection_name'
 
@@ -51,31 +52,3 @@ AdminDashboard =
 		if typeof s == 'string' and s.length > 0
 			path += (if s[0] == '/' then '' else '/') + s
 		path
-
-
-AdminDashboard.schemas.newUser = new SimpleSchema
-	email: 
-		type: String
-		label: "Email address"
-	chooseOwnPassword:
-		type: Boolean
-		label: 'Let this user choose their own password with an email'
-		defaultValue: true
-	password:
-		type: String
-		label: 'Password'
-		optional: true
-	sendPassword:
-		type: Boolean
-		label: 'Send this user their password by email'
-		optional: true
-
-AdminDashboard.schemas.sendResetPasswordEmail = new SimpleSchema
-	_id:
-		type: String
-
-AdminDashboard.schemas.changePassword = new SimpleSchema
-	_id:
-		type: String
-	password:
-		type: String

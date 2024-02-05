@@ -1,10 +1,10 @@
 Package.describe({
-  name: 'sach:flow-db-admin',
-  version: '1.2.0',
+  name: 'seakaytee:flow-db-admin',
+  version: '1.2.2',
   // Brief, one-line summary of the package.
   summary: 'Meteor Database Admin package for use with Flow Router',
   // URL to the Git repository containing the source code for this package.
-  git: 'https://github.com/sachinbhutani/flow-db-admin',
+  git: 'https://github.com/cpravetz/flow-db-admin',
   // By default, Meteor will default to using README.md for documentation.
   // To avoid submitting documentation, set this field to null.
   documentation: 'README.md'
@@ -19,26 +19,26 @@ Package.onUse(function(api) {
     'coffeescript',
     'underscore',
     'reactive-var',
-    'meteorhacks:unblock@1.1.0',
-    'kadira:flow-router@2.12.1',
-    'kadira:blaze-layout@2.3.0',
-    'zimme:active-route@2.3.2',
-    'reywood:publish-composite@1.5.2',
-    'aldeed:collection2-core@2.0.1',
-    'aldeed:autoform@6.2.0',
-    'aldeed:template-extension@4.1.0',
-    'alanning:roles@1.2.14',
-    'raix:handlebar-helpers@0.2.5',
-    'momentjs:moment@2.18.1',
-    'aldeed:tabular@2.1.1',
-    'mfactory:admin-lte@0.0.2',
-	'tmeasday:check-npm-versions@0.3.1',
+    'meteorhacks:unblock',
+    'seakaytee:flow-routing-extra',
+    'kadira:blaze-layout',
+    'zimme:active-route',
+    'reywood:publish-composite',
+    'aldeed:collection2',
+    'aldeed:autoform',
+    'aldeed:template-extension',
+    'alanning:roles',
+    'raix:handlebar-helpers',
+    'momentjs:moment',
+    'aldeed:tabular',
+    'mfactory:admin-lte',
+	'tmeasday:check-npm-versions',
     'check',
 	'ecmascript'
     ],
     both);
 
-  api.use(['less@1.0.0 || 2.5.0','session','jquery','templating'],'client')
+  api.use(['less','session','jquery','templating'],'client')
 
   api.use(['email'],'server')
 
@@ -77,6 +77,6 @@ Package.onUse(function(api) {
 
 Package.onTest(function(api) {
   api.use('tinytest');
-  api.use('sach:flow-db-admin');
+  api.use('seakaytee:flow-db-admin');
   api.addFiles('flow-db-admin-tests.js');
 });
